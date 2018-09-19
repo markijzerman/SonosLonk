@@ -25,10 +25,10 @@ write("--- Reading analog sensors ---" + '\n')
 try:
     while True:
         analog_values = analog.read_all()
-        a0 = analog_values[0]
-        a1 = analog_values[1]
-        a2 = analog_values[2]
-        a3 = analog_values[3]
+        a0 = int((analog_values[0]/5)*100)
+        a1 = int((analog_values[1]/5)*100)
+        a2 = int((analog_values[2]/5)*100)
+        a3 = int((analog_values[3]/5)*100)
 
         print("%s %s %s %s " % (a0, a1, a2, a3))
         time.sleep(0.01)
