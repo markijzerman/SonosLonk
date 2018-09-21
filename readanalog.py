@@ -1,26 +1,84 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import time
+import socket
+from threading import Thread
+from random import choice
+
+from urllib.parse import quote
+from http.server import SimpleHTTPRequestHandler
+from socketserver import TCPServer
+
 
 from envirophat import analog
 import soco
+from soco.discovery import by_name, discover
 
 def write(line):
     sys.stdout.write(line)
     sys.stdout.flush()
 
+class HttpServer(Thread):
+    """A simple HTTP Server in its own thread"""
+
+    def __init__(self, port):
+        super(HttpServer, self).__init__()
+        self.daemon = True
+        handler = SimpleHTTPRequestHandler
+        self.httpd = TCPServer(("", port), handler)
+
+    def run(self):
+        """Start the server"""
+        print('Start HTTP server')
+        self.httpd.serve_forever()
+
+    def stop(self):
+        """Stop the server"""
+        print('Stop HTTP server')
+        self.httpd.socket.close()
+
+def detect_ip_address():
+    """Return the local ip-address"""
+    # Rather hackish way to get the local ip-address, recipy from
+    # https://stackoverflow.com/a/166589
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip_address = s.getsockname()[0]
+    s.close()
+    return ip_address
+
+def play_a_file(speaker, file):
+    speaker.play_uri('http://{}:{}/{}'.format(detect_ip_address(), httpserverport, file))
+
+def test_if_files_are_playing():
+    # if it's not playing a file, play it now!
+    if speaker1.get_current_transport_info()['current_transport_state'] != 'PLAYING':
+        play_a_file(speaker1, 'mpthreetest.mp3')
+    
+
+### VARIABLES
+httpserverport = 8000
+prev_a0 = 0
+prev_a1 = 0
+prev_a2 = 0
+prev_a3 = 0
+
+### MAIN
+
+write("--- Setting up HTTP server ---" + '\n')
+server = HttpServer(httpserverport)
+server.start()
+print(detect_ip_address())
 
 write("--- Trying to connect to Sonos speakers ---" + '\n')
-sonos1 = soco.discovery.any_soco()
-# sonos1.volume += 10
-write("--- NO SONOS SPEAKERS FOUND... continuing... ---" + '\n')
+speaker1 = by_name("speaker1")
+print("found: ", speaker1.player_name, speaker1)
 
 time.sleep(2)
 
 write("--- Reading analog sensors ---" + '\n')
-
-
 
 try:
     while True:
@@ -29,9 +87,35 @@ try:
         a1 = int((analog_values[1]/5)*100)
         a2 = int((analog_values[2]/5)*100)
         a3 = int((analog_values[3]/5)*100)
+        
+        if a0 != prev_a0:
+            prev_a0 = a0
+            speaker1.volume = a0
+            print("A0:", a0)
 
-        print("%s %s %s %s " % (a0, a1, a2, a3))
+##        if a1 != prev_a1:
+##            prev_a1 = a1
+##            speaker2.volume = a1
+##            print("A1:", a1)
+##
+##        if a2 != prev_a2:
+##            prev_a2 = a2
+##            speaker3.volume = a2
+##            print("A2:", a2)
+##
+##        if a3 != prev_a3:
+##            prev_a3 = a3
+##            speaker4.volume = a3
+##            print("A3:", a3)
+
+        test_if_files_are_playing()
+            
         time.sleep(0.01)
         
 except KeyboardInterrupt:
+    speaker1.pause()
+##    speaker2.pause()
+##    speaker3.pause()
+##    speaker4.pause()
+    server.stop()
     pass
