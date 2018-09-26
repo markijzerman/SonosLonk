@@ -5,12 +5,8 @@ import sys
 import time
 import socket
 import struct
-from threading import Thread
-from random import choice
 
 from urllib.parse import quote
-from http.server import SimpleHTTPRequestHandler
-from socketserver import TCPServer
 
 
 from envirophat import analog
@@ -20,28 +16,6 @@ from soco.discovery import by_name, discover
 def write(line):
     sys.stdout.write(line)
     sys.stdout.flush()
-
-class HttpServer(Thread):
-    """A simple HTTP Server in its own thread"""
-
-    def __init__(self, port):
-        super(HttpServer, self).__init__()
-        self.daemon = True
-        handler = SimpleHTTPRequestHandler
-        self.httpd = TCPServer(("", port), handler)
-        self.httpd.allow_reuse_address = True
-
-    def run(self):
-        """Start the server"""
-        print('Start HTTP server')
-        self.httpd.serve_forever()
-
-    def stop(self):
-        """Stop the server"""
-        self.httpd.socket.close()
-        self.httpd.shutdown()
-        self.httpd.server_close()
-        print('Stop HTTP server')
 
 def detect_ip_address():
     """Return the local ip-address"""
@@ -76,9 +50,6 @@ test_after_x_count = 0
 
 ### MAIN
 
-write("--- Setting up HTTP server ---" + '\n')
-server = HttpServer(httpserverport)
-server.start()
 print(detect_ip_address())
 
 write("--- Trying to connect to Sonos speakers ---" + '\n')
@@ -129,6 +100,5 @@ except KeyboardInterrupt:
 ##    speaker2.pause()
 ##    speaker3.pause()
 ##    speaker4.pause()
-    server.stop()
     
     pass
