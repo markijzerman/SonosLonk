@@ -32,20 +32,54 @@ def play_a_file(speaker, file):
 
 def test_if_files_are_playing():
     # if it's not playing a file, play it now!
-    if speaker1.get_current_transport_info()['current_transport_state'] != 'PLAYING':
-        play_a_file(speaker1, file1)
+    try:
+        if speaker1.get_current_transport_info()['current_transport_state'] != 'PLAYING':
+            play_a_file(speaker1, file1)
+    except AttributeError:
+        print("speaker1 does not exist so unable to play file")
+    pass
+
+    try:
+        if speaker2.get_current_transport_info()['current_transport_state'] != 'PLAYING':
+            play_a_file(speaker2, file2)
+    except AttributeError:
+        print("speaker2 does not exist so unable to play file")
+    pass
+
+    try:
+        if speaker3.get_current_transport_info()['current_transport_state'] != 'PLAYING':
+            play_a_file(speaker3, file3)
+    except AttributeError:
+        print("speaker3 does not exist so unable to play file")
+    pass
+
+    try:
+        if speaker4.get_current_transport_info()['current_transport_state'] != 'PLAYING':
+            play_a_file(speaker4, file4)
+    except AttributeError:
+        print("speaker4 does not exist so unable to play file")
+    pass
+
+    try:
+        if speaker5.get_current_transport_info()['current_transport_state'] != 'PLAYING':
+            play_a_file(speaker5, file5)
+    except AttributeError:
+        print("speaker5 does not exist so unable to play file")
+    pass
     
 
 ### VARIABLES
 httpserverport = 8000
 file1 = 'mpthreetest.mp3'
-file2 = ''
-file3 = ''
-file4 = ''
-prev_a0 = 0
+file2 = 'mpthreetest.mp3'
+file3 = 'mpthreetest.mp3'
+file4 = 'mpthreetest.mp3'
+file5 = 'mpthreetest.mp3'
 prev_a1 = 0
 prev_a2 = 0
 prev_a3 = 0
+prev_a4 = 0
+prev_a5 = 0
 test_after_x_count = 0
 
 ### MAIN
@@ -53,8 +87,36 @@ test_after_x_count = 0
 print(detect_ip_address())
 
 write("--- Trying to connect to Sonos speakers ---" + '\n')
-speaker1 = by_name("speaker1")
-print("found: ", speaker1.player_name, speaker1)
+
+try:
+    speaker1 = by_name("speaker1")
+    print("found: ", speaker1.player_name, speaker1)
+except AttributeError:
+    print("speaker1 was not found")
+
+try:
+    speaker2 = by_name("speaker2")
+    print("found: ", speaker2.player_name, speaker2)
+except AttributeError:
+    print("speaker2 was not found")
+
+try:
+    speaker3 = by_name("speaker3")
+    print("found: ", speaker3.player_name, speaker3)
+except AttributeError:
+    print("speaker3 was not found")
+
+try:
+    speaker4 = by_name("speaker4")
+    print("found: ", speaker4.player_name, speaker4)
+except AttributeError:
+    print("speaker4 was not found")
+
+try:
+    speaker5 = by_name("speaker5")
+    print("found: ", speaker5.player_name, speaker5)
+except AttributeError:
+    print("speaker5 was not found")
 
 time.sleep(2)
 
@@ -63,30 +125,58 @@ write("--- Reading analog sensors ---" + '\n')
 try:
     while True:
         analog_values = analog.read_all()
-        a0 = int((analog_values[0]/5)*100)
-        a1 = int((analog_values[1]/5)*100)
-        a2 = int((analog_values[2]/5)*100)
-        a3 = int((analog_values[3]/5)*100)
-        
-        if a0 != prev_a0:
-            prev_a0 = a0
-            speaker1.volume = a0
-            print("A0:", a0)
+        a1 = int((analog_values[0]/5)*100)
+        a2 = int((analog_values[1]/5)*100)
+        a3 = int((analog_values[2]/5)*100)
+        a4 = int((analog_values[3]/5)*100)
+        a5 = 100 #temp
 
-##        if a1 != prev_a1:
-##            prev_a1 = a1
-##            speaker2.volume = a1
-##            print("A1:", a1)
-##
-##        if a2 != prev_a2:
-##            prev_a2 = a2
-##            speaker3.volume = a2
-##            print("A2:", a2)
-##
-##        if a3 != prev_a3:
-##            prev_a3 = a3
-##            speaker4.volume = a3
-##            print("A3:", a3)
+        try:
+            if a1 != prev_a1:
+                prev_a1 = a1
+                speaker1.volume = a1
+                print("A1:", a1)
+        except AttributeError:
+            print("speaker1 did not exist so not able to set volume")
+            pass
+
+        try:
+            if a2 != prev_a2:
+                prev_a2 = a2
+                speaker2.volume = a2
+                print("A2:", a2)
+        except AttributeError:
+            print("speaker2 did not exist so not able to set volume")
+            pass
+
+        try:
+            if a3 != prev_a3:
+                prev_a3 = a3
+                speaker3.volume = a3
+                print("A3:", a3)
+        except AttributeError:
+            print("speaker3 did not exist so not able to set volume")
+            pass
+
+        try:
+            if a4 != prev_a4:
+                prev_a4 = a4
+                speaker4.volume = a4
+                print("A4:", a4)
+        except AttributeError:
+            print("speaker4 did not exist so not able to set volume")
+            pass
+
+        try:
+            if a5 != prev_a5:
+                prev_a5 = a5
+                speaker5.volume = a5
+                print("A5:", a5)
+        except AttributeError:
+            print("speaker5 did not exist so not able to set volume")
+            pass
+
+
 
         test_after_x_count += 1
         if test_after_x_count > 50:
@@ -96,9 +186,30 @@ try:
         time.sleep(0.01)
         
 except KeyboardInterrupt:
-    speaker1.pause()
-##    speaker2.pause()
-##    speaker3.pause()
-##    speaker4.pause()
-    
-    pass
+    try:
+        speaker1.pause()
+    except AttributeError:
+        print("speaker1 does not exist so can not pause it.")
+        
+    try:
+        speaker2.pause()
+    except AttributeError:
+        print("speaker2 does not exist so can not pause it.")
+
+    try:
+        speaker3.pause()
+    except AttributeError:
+        print("speaker3 does not exist so can not pause it.")
+
+    try:
+        speaker4.pause()
+    except AttributeError:
+        print("speaker4 does not exist so can not pause it.")
+
+    try:
+        speaker5.pause()
+    except AttributeError:
+        print("speaker5 does not exist so can not pause it.")
+
+
+
