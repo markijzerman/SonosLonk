@@ -75,11 +75,11 @@ def test_if_files_are_playing():
 
 ### VARIABLES
 httpserverport = 8000
-file1 = 'itsgonnarain.wav'
+file1 = 'FORESTGREEN.mp3'
 file2 = 'FORESTGREEN.mp3'
 file3 = 'VIVIDRED.mp3'
 file4 = 'PALEYELLOW.mp3'
-file5 = 'FORESTGREEN.mp3'
+file5 = 'BABYPINK.mp3'
 prev_a1 = 0
 prev_a2 = 0
 prev_a3 = 0
@@ -185,16 +185,17 @@ try:
             print("speaker5 did not exist so not able to set volume")
         pass
 
-        print(a1, " ", a2, " ", a3, " ", a4, " ", a5)
+##        print(a1, " ", a2, " ", a3, " ", a4, " ", a5)
 
 
 
         test_after_x_count += 1
-        if test_after_x_count > 1:
+        if test_after_x_count > 20:
+            print("test if files are all playing")
             test_after_x_count = 0
             test_if_files_are_playing()
             
-        time.sleep(0.001)
+        time.sleep(0.01)
         
 except KeyboardInterrupt:
     try:
