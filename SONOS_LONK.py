@@ -70,11 +70,11 @@ def test_if_files_are_playing():
 
 ### VARIABLES
 httpserverport = 8000
-file1 = 'mpthreetest.mp3'
-file2 = 'mpthreetest.mp3'
-file3 = 'mpthreetest.mp3'
-file4 = 'mpthreetest.mp3'
-file5 = 'mpthreetest.mp3'
+file1 = 'itsgonnarain.wav'
+file2 = 'FORESTGREEN.mp3'
+file3 = 'VIVIDRED.mp3'
+file4 = 'PALEYELLOW.mp3'
+file5 = 'FORESTGREEN.mp3'
 prev_a1 = 0
 prev_a2 = 0
 prev_a3 = 0
@@ -129,7 +129,7 @@ try:
         a2 = int((analog_values[1]/5)*100)
         a3 = int((analog_values[2]/5)*100)
         a4 = int((analog_values[3]/5)*100)
-        a5 = 100 #temp
+        a5 = 50 #temp
 
         try:
             if a1 != prev_a1:
@@ -179,11 +179,11 @@ try:
 
 
         test_after_x_count += 1
-        if test_after_x_count > 50:
+        if test_after_x_count > 1:
             test_after_x_count = 0
             test_if_files_are_playing()
             
-        time.sleep(0.01)
+        time.sleep(0.001)
         
 except KeyboardInterrupt:
     try:
