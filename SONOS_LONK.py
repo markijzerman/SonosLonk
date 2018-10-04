@@ -8,6 +8,7 @@ import sys
 import time
 import socket
 import struct
+import threading
 
 from urllib.parse import quote
 
@@ -33,29 +34,42 @@ def detect_ip_address():
     return ip_address
 
 
-def test_if_files_are_playing():
-    # if it's not playing a file, play it now!
-    print("checking if files are all playing...")
+class test_if_files_are_playing(threading.Thread):
+    def __init__(self):
+        self.running = False
+        super(test_if_files_are_playing, self).__init__()
+        
+    def start(self):
+        self.running = True
+        super(test_if_files_are_playing, self).start()
 
-    for speakerName, speakerAddress in sonosList.items():
-        print(speakerName)
+    def run(self):
+        while self.running:
+            try:
+                for speakerName, speakerAddress in sonosList.items():
+                    
+                    port = 8000 + (int(speakerName[-1:]))
+                    file = files[(int(speakerName[-1:])-1)]
 
-        port = 8000 + (int(speakerName[-1:]))
-        file = files[(int(speakerName[-1:])-1)]
+                    if speakerAddress.get_current_transport_info()['current_transport_state'] != 'PLAYING':
+                        print("Add URI to queue on " + speakerName)
+                        for x in range (10):
+                            speakerAddress.add_uri_to_queue('http://{}:{}/{}'.format(detect_ip_address(), port, file))
+                        time.sleep(0.5)
+                        speakerAddress.play()
+                        print("Playing back on " + speakerName)
+                        time.sleep(0.5)
 
-        if speakerAddress.get_current_transport_info()['current_transport_state'] != 'PLAYING':
-            print("checken of speaker speeldeging goed?")
-            speakerAddress.add_uri_to_queue('http://{}:{}/{}'.format(detect_ip_address(), port, file))
-            print("add to queue gedaan")
-            time.sleep(1)
-            print("ff slaapie gedaan")
-            speakerAddress.play()
-            print("na de play")
-            time.sleep(1)
+                    else:
+                        print(speakerName, " was already playing...")
+                        time.sleep(2)
 
-        else:
-            print(speakerName, " was already playing...")
-    
+            except:
+                pass
+
+    def stop(self):
+        self.running = False
+
 
 ### VARIABLES
 sonosAmt = 5
@@ -99,10 +113,15 @@ for speakerName, speakerAddress in sonosList.items():
         speakerAddress.play_mode = 'REPEAT_ALL'
     except AttributeError:
         print("a speaker seems to be missing")
-    time.sleep(2)
+    time.sleep(0.5)
 
-write("--- Starting audio ---" + '\n')
-test_if_files_are_playing()
+write("--- Starting audio check & play thread ---" + '\n')
+
+# make a thread of the checking of the playing
+checkPlayingThread = test_if_files_are_playing()
+checkPlayingThread.daemon = True
+checkPlayingThread.start()
+
 
 write("--- Reading analog sensors ---" + '\n')
 
@@ -159,24 +178,18 @@ try:
             print("speaker5 did not exist so not able to set volume")
         pass
 
-##        print(a1, " ", a2, " ", a3, " ", a4, " ", a5)
-
-
-        
-        test_after_x_count += 1
-        if test_after_x_count > 100:
-            print("test if files are all playing")
-            test_after_x_count = 0
-            test_if_files_are_playing()
             
         time.sleep(0.01)
         
 except KeyboardInterrupt:
     print("quitting...")
+    checkPlayingThread.stop()
+    time.sleep(0.5)
     for speakerName, speakerAddress in sonosList.items():
         if speakerAddress.get_current_transport_info()['current_transport_state'] == 'PLAYING':
             speakerAddress.pause()
-            print("pausing " + speakerName)
+            speakerAddress.clear_queue()
+            print("pausing & clearing " + speakerName)
         else:
             print(speakerName + " is already paused")
 
