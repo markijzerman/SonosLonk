@@ -38,11 +38,16 @@ httpserverport3 = 8003
 httpserverport4 = 8004
 httpserverport5 = 8005
 
-server1 = HttpServer(httpserverport1)
-server2 = HttpServer(httpserverport2)
-server3 = HttpServer(httpserverport3)
-server4 = HttpServer(httpserverport4)
-server5 = HttpServer(httpserverport5)
+try:
+    server1 = HttpServer(httpserverport1)
+    server2 = HttpServer(httpserverport2)
+    server3 = HttpServer(httpserverport3)
+    server4 = HttpServer(httpserverport4)
+    server5 = HttpServer(httpserverport5)
+except:
+    print("something went wrong trying to run servers!")
+pass
+    
 print('starting httpservers')
 server1.start()
 server2.start()

@@ -126,8 +126,11 @@ try:
     while True:
 
         for speakerName, speakerAddress in sonosList.items():
-            curAnalogPortVoltage = int((adc.read_voltage(int(speakerName[-1:]))/5*100)) #scale this if another range is needed on site!
-            analog[(int(speakerName[-1:])-1)] = curAnalogPortVoltage
+            try:
+                curAnalogPortVoltage = int((adc.read_voltage(int(speakerName[-1:]))/5*100)) #scale this if another range is needed on site!
+                analog[(int(speakerName[-1:])-1)] = curAnalogPortVoltage
+            except:
+                print("something went wrong when setting the analog value")
 
             try:
                 if analog[(int(speakerName[-1:])-1)] != prev_analog[(int(speakerName[-1:])-1)]:
