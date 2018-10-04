@@ -32,54 +32,36 @@ def detect_ip_address():
     s.close()
     return ip_address
 
-def play_a_file(speaker, file):
-    speaker.play_uri('http://{}:{}/{}'.format(detect_ip_address(), httpserverport, file))
 
 def test_if_files_are_playing():
     # if it's not playing a file, play it now!
-    try:
-        if speaker1.get_current_transport_info()['current_transport_state'] != 'PLAYING':
-            play_a_file(speaker1, file1)
-    except:
-        print("speaker1 does not exist so unable to play file")
-    pass
+    print("checking if files are all playing...")
 
-    try:
-        if speaker2.get_current_transport_info()['current_transport_state'] != 'PLAYING':
-            play_a_file(speaker2, file2)
-    except:
-        print("speaker2 does not exist so unable to play file")
-    pass
+    for speakerName, speakerAddress in sonosList.items():
+        print(speakerName)
 
-    try:
-        if speaker3.get_current_transport_info()['current_transport_state'] != 'PLAYING':
-            play_a_file(speaker3, file3)
-    except:
-        print("speaker3 does not exist so unable to play file")
-    pass
+        port = 8000 + (int(speakerName[-1:]))
+        file = files[(int(speakerName[-1:])-1)]
 
-    try:
-        if speaker4.get_current_transport_info()['current_transport_state'] != 'PLAYING':
-            play_a_file(speaker4, file4)
-    except:
-        print("speaker4 does not exist so unable to play file")
-    pass
+        if speakerAddress.get_current_transport_info()['current_transport_state'] != 'PLAYING':
+            print("checken of speaker speeldeging goed?")
+            speakerAddress.add_uri_to_queue('http://{}:{}/{}'.format(detect_ip_address(), port, file))
+            print("add to queue gedaan")
+            time.sleep(1)
+            print("ff slaapie gedaan")
+            speakerAddress.play()
+            print("na de play")
+            time.sleep(1)
 
-    try:
-        if speaker5.get_current_transport_info()['current_transport_state'] != 'PLAYING':
-            play_a_file(speaker5, file5)
-    except:
-        print("speaker5 does not exist so unable to play file")
-    pass
+        else:
+            print(speakerName, " was already playing...")
     
 
 ### VARIABLES
-httpserverport = 8000
-file1 = 'FORESTGREEN.mp3'
-file2 = 'FORESTGREEN.mp3'
-file3 = 'VIVIDRED.mp3'
-file4 = 'PALEYELLOW.mp3'
-file5 = 'BABYPINK.mp3'
+sonosAmt = 5
+sonosList = {}
+http_port = 8000
+files = ['GREEN.mp3', 'GREY.mp3', 'YELLOW.mp3', 'RED.mp3', 'PINK.mp3']
 prev_a1 = 0
 prev_a2 = 0
 prev_a3 = 0
@@ -93,42 +75,34 @@ print(detect_ip_address())
 
 write("--- Trying to connect to Sonos speakers ---" + '\n')
 
+# add sonos speakers to dict sonosList
 try:
-    speaker1 = by_name("speaker1")
-    print("found: ", speaker1.player_name, speaker1)
-except:
-    print("speaker1 was not found")
-pass
+    for x in range(1, sonosAmt+1):
+        sonosList['speaker{}'.format(x)] = by_name("speaker"+str(x))
+except TypeError:
+    print("one or more speakers are not available")
 
-try:
-    speaker2 = by_name("speaker2")
-    print("found: ", speaker2.player_name, speaker2)
-except:
-    print("speaker2 was not found")
-pass
+# available speakers are:
+print(sonosList)
 
-try:
-    speaker3 = by_name("speaker3")
-    print("found: ", speaker3.player_name, speaker3)
-except:
-    print("speaker3 was not found")
-pass
+time.sleep(1)
 
-try:
-    speaker4 = by_name("speaker4")
-    print("found: ", speaker4.player_name, speaker4)
-except:
-    print("speaker4 was not found")
-pass
+write("--- Turning crossfade on, clearing queues, setting play mode ---" + '\n')
 
-try:
-    speaker5 = by_name("speaker5")
-    print("found: ", speaker5.player_name, speaker5)
-except:
-    print("speaker5 was not found")
-pass
+# for all speakers, stop them, set crossfade to true, clear the queue and set play mode to repeat all
+for speakerName, speakerAddress in sonosList.items():
+    try:
+        print(speakerAddress)
+        speakerAddress.stop()
+        speakerAddress.cross_fade = True
+        speakerAddress.clear_queue()
+        speakerAddress.play_mode = 'REPEAT_ALL'
+    except AttributeError:
+        print("a speaker seems to be missing")
+    time.sleep(2)
 
-time.sleep(2)
+write("--- Starting audio ---" + '\n')
+test_if_files_are_playing()
 
 write("--- Reading analog sensors ---" + '\n')
 
@@ -143,7 +117,7 @@ try:
         try:
             if a1 != prev_a1:
                 prev_a1 = a1
-                speaker1.volume = a1
+                sonosList['speaker1'].volume = a1
                 print("A1:", a1)
         except:
             print("speaker1 did not exist so not able to set volume")
@@ -152,7 +126,7 @@ try:
         try:
             if a2 != prev_a2:
                 prev_a2 = a2
-                speaker2.volume = a2
+                sonosList['speaker2'].volume = a2
                 print("A2:", a2)
         except:
             print("speaker2 did not exist so not able to set volume")
@@ -161,7 +135,7 @@ try:
         try:
             if a3 != prev_a3:
                 prev_a3 = a3
-                speaker3.volume = a3
+                sonosList['speaker3'].volume = a3
                 print("A3:", a3)
         except:
             print("speaker3 did not exist so not able to set volume")
@@ -170,7 +144,7 @@ try:
         try:
             if a4 != prev_a4:
                 prev_a4 = a4
-                speaker4.volume = a4
+                sonosList['speaker4'].volume = a4
                 print("A4:", a4)
         except:
             print("speaker4 did not exist so not able to set volume")
@@ -179,7 +153,7 @@ try:
         try:
             if a5 != prev_a5:
                 prev_a5 = a5
-                speaker5.volume = a5
+                sonosList['speaker5'].volume = a5
                 print("A5:", a5)
         except:
             print("speaker5 did not exist so not able to set volume")
@@ -188,9 +162,9 @@ try:
 ##        print(a1, " ", a2, " ", a3, " ", a4, " ", a5)
 
 
-
+        
         test_after_x_count += 1
-        if test_after_x_count > 20:
+        if test_after_x_count > 100:
             print("test if files are all playing")
             test_after_x_count = 0
             test_if_files_are_playing()
@@ -198,35 +172,13 @@ try:
         time.sleep(0.01)
         
 except KeyboardInterrupt:
-    try:
-        speaker1.pause()
-    except:
-        print("speaker1 does not exist so can not pause it.")
-    pass
-        
-    try:
-        speaker2.pause()
-    except:
-        print("speaker2 does not exist so can not pause it.")
-    pass
-
-    try:
-        speaker3.pause()
-    except:
-        print("speaker3 does not exist so can not pause it.")
-    pass
-
-    try:
-        speaker4.pause()
-    except:
-        print("speaker4 does not exist so can not pause it.")
-    pass
-
-    try:
-        speaker5.pause()
-    except:
-        print("speaker5 does not exist so can not pause it.")
-    pass
+    print("quitting...")
+    for speakerName, speakerAddress in sonosList.items():
+        if speakerAddress.get_current_transport_info()['current_transport_state'] == 'PLAYING':
+            speakerAddress.pause()
+            print("pausing " + speakerName)
+        else:
+            print(speakerName + " is already paused")
 
 
 

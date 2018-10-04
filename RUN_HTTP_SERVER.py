@@ -32,12 +32,23 @@ class HttpServer(Thread):
         self.httpd.server_close()
         print('Stop HTTP server')
 
-httpserverport = 8000
+httpserverport1 = 8001
+httpserverport2 = 8002
+httpserverport3 = 8003
+httpserverport4 = 8004
+httpserverport5 = 8005
 
-server = HttpServer(httpserverport)
-server.start()
-
-
+server1 = HttpServer(httpserverport1)
+server2 = HttpServer(httpserverport2)
+server3 = HttpServer(httpserverport3)
+server4 = HttpServer(httpserverport4)
+server5 = HttpServer(httpserverport5)
+print('starting httpservers')
+server1.start()
+server2.start()
+server3.start()
+server4.start()
+server5.start()
 
 try:
         while True:
@@ -45,6 +56,10 @@ try:
             time.sleep(1)
 
 except KeyboardInterrupt:
-    server.stop()
+    server1.stop()
+    server2.stop()
+    server3.stop()
+    server4.stop()
+    server5.stop()
     
     pass
