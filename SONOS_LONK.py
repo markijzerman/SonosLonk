@@ -53,7 +53,7 @@ class test_if_files_are_playing(threading.Thread):
 
                     if speakerAddress.get_current_transport_info()['current_transport_state'] != 'PLAYING':
                         print("Add URI to queue on " + speakerName)
-                        for x in range (10):
+                        for x in range (50):
                             speakerAddress.add_uri_to_queue('http://{}:{}/{}'.format(detect_ip_address(), port, file))
                         time.sleep(0.5)
                         speakerAddress.play()
@@ -62,7 +62,7 @@ class test_if_files_are_playing(threading.Thread):
 
                     else:
                         print(speakerName, " was already playing...")
-                        time.sleep(2)
+                        time.sleep(10)
 
             except:
                 pass
@@ -76,12 +76,8 @@ sonosAmt = 5
 sonosList = {}
 http_port = 8000
 files = ['GREEN.mp3', 'GREY.mp3', 'YELLOW.mp3', 'RED.mp3', 'PINK.mp3']
-prev_a1 = 0
-prev_a2 = 0
-prev_a3 = 0
-prev_a4 = 0
-prev_a5 = 0
-test_after_x_count = 0
+analog = [0,0,0,0,0]
+prev_analog = [0,0,0,0,0]
 
 ### MAIN
 
@@ -127,57 +123,21 @@ write("--- Reading analog sensors ---" + '\n')
 
 try:
     while True:
-        a1 = int((adc.read_voltage(1)/5)*100)
-        a2 = int((adc.read_voltage(2)/5)*100)
-        a3 = int((adc.read_voltage(3)/5)*100)
-        a4 = int((adc.read_voltage(4)/5)*100)
-        a5 = int((adc.read_voltage(5)/5)*100)
 
-        try:
-            if a1 != prev_a1:
-                prev_a1 = a1
-                sonosList['speaker1'].volume = a1
-                print("A1:", a1)
-        except:
-            print("speaker1 did not exist so not able to set volume")
-        pass
+        for speakerName, speakerAddress in sonosList.items():
+            curAnalogPortVoltage = int((adc.read_voltage(int(speakerName[-1:]))/5*100))
+            analog[(int(speakerName[-1:])-1)] = curAnalogPortVoltage
 
-        try:
-            if a2 != prev_a2:
-                prev_a2 = a2
-                sonosList['speaker2'].volume = a2
-                print("A2:", a2)
-        except:
-            print("speaker2 did not exist so not able to set volume")
-        pass
+            try:
 
-        try:
-            if a3 != prev_a3:
-                prev_a3 = a3
-                sonosList['speaker3'].volume = a3
-                print("A3:", a3)
-        except:
-            print("speaker3 did not exist so not able to set volume")
-        pass
+                if analog[(int(speakerName[-1:])-1)] != prev_analog[(int(speakerName[-1:])-1)]:
+                    prev_analog[(int(speakerName[-1:])-1)] = analog[(int(speakerName[-1:])-1)]
+                    speakerAddress.volume = analog[(int(speakerName[-1:])-1)]
 
-        try:
-            if a4 != prev_a4:
-                prev_a4 = a4
-                sonosList['speaker4'].volume = a4
-                print("A4:", a4)
-        except:
-            print("speaker4 did not exist so not able to set volume")
-        pass
+            except:
+                print("not able to set volume on " + speakerName)
 
-        try:
-            if a5 != prev_a5:
-                prev_a5 = a5
-                sonosList['speaker5'].volume = a5
-                print("A5:", a5)
-        except:
-            print("speaker5 did not exist so not able to set volume")
-        pass
-
+            pass
             
         time.sleep(0.01)
         
