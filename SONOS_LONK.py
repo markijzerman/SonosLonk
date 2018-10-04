@@ -78,6 +78,7 @@ http_port = 8000
 files = ['GREEN.mp3', 'GREY.mp3', 'YELLOW.mp3', 'RED.mp3', 'PINK.mp3']
 analog = [0,0,0,0,0]
 prev_analog = [0,0,0,0,0]
+counter = 0
 
 ### MAIN
 
@@ -125,11 +126,10 @@ try:
     while True:
 
         for speakerName, speakerAddress in sonosList.items():
-            curAnalogPortVoltage = int((adc.read_voltage(int(speakerName[-1:]))/5*100))
+            curAnalogPortVoltage = int((adc.read_voltage(int(speakerName[-1:]))/5*100)) #scale this if another range is needed on site!
             analog[(int(speakerName[-1:])-1)] = curAnalogPortVoltage
 
             try:
-
                 if analog[(int(speakerName[-1:])-1)] != prev_analog[(int(speakerName[-1:])-1)]:
                     prev_analog[(int(speakerName[-1:])-1)] = analog[(int(speakerName[-1:])-1)]
                     speakerAddress.volume = analog[(int(speakerName[-1:])-1)]
@@ -138,8 +138,15 @@ try:
                 print("not able to set volume on " + speakerName)
 
             pass
-            
+
+        counter += 1
+
+        if counter > 50:
+            print(analog)
+            counter = 0
+   
         time.sleep(0.01)
+
         
 except KeyboardInterrupt:
     print("quitting...")
