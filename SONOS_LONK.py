@@ -79,6 +79,9 @@ files = ['GREEN.mp3', 'GREY.mp3', 'YELLOW.mp3', 'RED.mp3', 'PINK.mp3']
 analog = [0,0,0,0,0]
 prev_analog = [0,0,0,0,0]
 counter = 0
+logarithmicScaling = 1
+potRange = 1.48
+
 
 ### MAIN
 
@@ -127,8 +130,8 @@ try:
 
         for speakerName, speakerAddress in sonosList.items():
             try:
-                curAnalogPortVoltage = int((adc.read_voltage(int(speakerName[-1:]))/5*100)) #scale this if another range is needed on site!
-                analog[(int(speakerName[-1:])-1)] = curAnalogPortVoltage
+                curAnalogPortVoltage = adc.read_voltage(int(speakerName[-1:]))
+                analog[(int(speakerName[-1:])-1)] = (curAnalogPortVoltage / 1.48) * 100
             except:
                 print("something went wrong when setting the analog value")
 
@@ -144,7 +147,7 @@ try:
 
         counter += 1
 
-        if counter > 50:
+        if counter > 5:
             print(analog)
             counter = 0
    
