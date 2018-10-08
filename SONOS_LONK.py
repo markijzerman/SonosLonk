@@ -56,7 +56,7 @@ class test_if_files_are_playing(threading.Thread):
                         for x in range (50):
                             speakerAddress.add_uri_to_queue('http://{}:{}/{}'.format(detect_ip_address(), port, file))
                         time.sleep(0.5)
-                        speakerAddress.play()
+                        speakerAddress.play_from_queue(1)
                         print("Playing back on " + speakerName)
                         time.sleep(0.5)
 
@@ -64,7 +64,8 @@ class test_if_files_are_playing(threading.Thread):
                         print(speakerName, " was already playing...")
                         time.sleep(10)
 
-            except:
+            except Exception as e:
+                print("something went wrong when sending URI to speaker:" + str(e))
                 pass
 
     def stop(self):
@@ -101,7 +102,7 @@ print(sonosList)
 
 time.sleep(1)
 
-write("--- Turning crossfade on, clearing queues, setting play mode ---" + '\n')
+write("--- Turning crossfade on, clearing queues, setting play mode, turn queue on ---" + '\n')
 
 # for all speakers, stop them, set crossfade to true, clear the queue and set play mode to repeat all
 for speakerName, speakerAddress in sonosList.items():
