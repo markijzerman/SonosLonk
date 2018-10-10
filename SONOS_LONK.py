@@ -82,6 +82,7 @@ prev_analog = [0,0,0,0,0]
 counter = 0
 logarithmicScaling = 1
 potRange = 1.48
+x = 1
 
 
 ### MAIN
@@ -91,11 +92,28 @@ print(detect_ip_address())
 write("--- Trying to connect to Sonos speakers ---" + '\n')
 
 # add sonos speakers to dict sonosList
-try:
-    for x in range(1, sonosAmt+1):
+##try:
+##    for x in range(1, sonosAmt+1):
+##        sonosList['speaker{}'.format(x)] = by_name("speaker"+str(x))
+##except TypeError:
+##    print("one or more speakers are not available")
+
+# add sonos speakers to dict sonosList
+while len(sonosList) <= sonosAmt:
+    try:
         sonosList['speaker{}'.format(x)] = by_name("speaker"+str(x))
-except TypeError:
-    print("one or more speakers are not available")
+        print(sonosList)
+        if sonosList['speaker{}'.format(x)] != None:
+            if x < sonosAmt:
+                x = x+1
+        sleep(0.5)
+    except:
+        print("still looking for more speakers...")
+        time.sleep(2)
+
+time.sleep(2)
+
+print("all speakers found")
 
 # available speakers are:
 print(sonosList)
