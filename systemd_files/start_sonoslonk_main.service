@@ -1,0 +1,13 @@
+[Unit]
+Description=SonosLonk main program start
+After=start_sonoslonk.service
+Wants=start_sonoslonk.service
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/SONOS
+ExecStart=/usr/bin/python3 /home/pi/SONOS/SONOS_LONK.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

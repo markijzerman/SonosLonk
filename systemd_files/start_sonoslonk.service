@@ -1,0 +1,13 @@
+[Unit]
+Description=SonosLonk installation starter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/SONOS
+ExecStart=/usr/bin/python3 /home/pi/SONOS/RUN_HTTP_SERVER.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
