@@ -9,6 +9,7 @@ import time
 import socket
 import struct
 import threading
+import RPi.GPIO as GPIO
 
 from urllib.parse import quote
 
@@ -71,21 +72,55 @@ class test_if_files_are_playing(threading.Thread):
     def stop(self):
         self.running = False
 
+# this runs on shutdown
+def Shutdown(channel):
+    print("there was a button press...")
+    pushTime = 0
+    while pushTime < 3000:
+        time.sleep(0.1)
+        if GPIO.input(21) == 0 :
+            pushTime = pushTime + 100
+            print(pushTime)
+        if GPIO.input(21) == 1:
+            pushTime = 0
+        if pushTime >= 2800:
+            print("SHUTTING DOWN NOW!")
+            checkPlayingThread.stop()
+            time.sleep(0.5)
+            for speakerName, speakerAddress in sonosList.items():
+                if speakerAddress.get_current_transport_info()['current_transport_state'] == 'PLAYING':
+                    speakerAddress.pause()
+                    speakerAddress.clear_queue()
+                    print("pausing & clearing " + speakerName)
+                else:
+                    print(speakerName + " is already paused")
+            time.sleep(3) 
+            os.system("sudo shutdown -h now")
+        
+def resetCounter(channel):
+    pushTime = 0
+
+# set GPIO pin BCM21 as shutdown pin
+GPIO.setmode(GPIO.BCM)  
+GPIO.setup(21, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.add_event_detect(21, GPIO.FALLING, callback = Shutdown, bouncetime = 1000)
+
+
 
 ### VARIABLES
-sonosAmt = 5
+sonosAmt = 6
 sonosList = {}
 http_port = 8000
-files = ['GREEN.mp3', 'GREY.mp3', 'YELLOW.mp3', 'RED.mp3', 'PINK.mp3']
-analog = [0,0,0,0,0]
-prev_analog = [0,0,0,0,0]
+files = ['BLUE.mp3', 'GREEN.mp3', 'PINK.mp3', 'RED.mp3', 'YELLOW.mp3', 'WHITE.mp3']
+analog = [0,0,0,0,0,0]
+prev_analog = [0,0,0,0,0,0]
 counter = 0
 logarithmicScaling = 1
 potRange = 1.48
 x = 1
 
 
-### MAIN
+# MAIN
 
 print(detect_ip_address())
 
@@ -104,12 +139,18 @@ while len(sonosList) <= sonosAmt:
         sonosList['speaker{}'.format(x)] = by_name("speaker"+str(x))
         print(sonosList)
         if sonosList['speaker{}'.format(x)] != None:
-            if x < sonosAmt:
-                x = x+1
-        sleep(0.5)
-    except:
+            x = x+1
+        time.sleep(0.5)
+    except Exception as e:
         print("still looking for more speakers...")
-        time.sleep(2)
+        print(e)
+        time.sleep(0.2)
+
+try:
+    sonosList = {k:v for k,v in sonosList.items() if v is not None}
+    print("removing empty list elements")
+except KeyError:
+    print("no elements in list which are empty!")
 
 time.sleep(2)
 

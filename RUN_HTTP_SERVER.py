@@ -37,6 +37,7 @@ httpserverport2 = 8002
 httpserverport3 = 8003
 httpserverport4 = 8004
 httpserverport5 = 8005
+httpserverport6 = 8006
 
 try:
     server1 = HttpServer(httpserverport1)
@@ -44,6 +45,7 @@ try:
     server3 = HttpServer(httpserverport3)
     server4 = HttpServer(httpserverport4)
     server5 = HttpServer(httpserverport5)
+    server6 = HttpServer(httpserverport6)
 except:
     print("something went wrong trying to run servers!")
 pass
@@ -54,6 +56,7 @@ server2.start()
 server3.start()
 server4.start()
 server5.start()
+server6.start()
 
 try:
         while True:
@@ -66,5 +69,6 @@ except KeyboardInterrupt:
     server3.stop()
     server4.stop()
     server5.stop()
+    server6.stop()
     
     pass
