@@ -10,6 +10,7 @@ import socket
 import struct
 import threading
 import RPi.GPIO as GPIO
+from numpy import interp
 
 from urllib.parse import quote
 
@@ -85,15 +86,20 @@ def Shutdown(channel):
             pushTime = 0
         if pushTime >= 2800:
             print("SHUTTING DOWN NOW!")
-            checkPlayingThread.stop()
-            time.sleep(0.5)
-            for speakerName, speakerAddress in sonosList.items():
-                if speakerAddress.get_current_transport_info()['current_transport_state'] == 'PLAYING':
-                    speakerAddress.pause()
-                    speakerAddress.clear_queue()
-                    print("pausing & clearing " + speakerName)
-                else:
-                    print(speakerName + " is already paused")
+
+            if 'checkPlayingThread' in globals():
+                checkPlayingThread.stop()
+                time.sleep(0.5)
+                for speakerName, speakerAddress in sonosList.items():
+                    if speakerAddress.get_current_transport_info()['current_transport_state'] == 'PLAYING':
+                        speakerAddress.pause()
+                        speakerAddress.clear_queue()
+                        print("pausing & clearing " + speakerName)
+                    else:
+                        print(speakerName + " is already paused")
+
+            else:
+                print("quitting wihtout stopping speakers as checkPlayingThread is not found")
             time.sleep(3) 
             os.system("sudo shutdown -h now")
         
@@ -118,6 +124,18 @@ counter = 0
 logarithmicScaling = 1
 potRange = 1.48
 x = 1
+tries = 0
+maxtries = 5
+#turning from left to right
+minVoltage = 0
+maxVoltage = 1.48
+minVolume = 0
+maxVolume = 100
+# if turning right to left, then like this:
+##minVoltage = 5 - 1.48
+##maxVoltage = 4.8
+##minVolume = 100
+##maxVolume = 0
 
 
 # MAIN
@@ -143,6 +161,11 @@ while len(sonosList) <= sonosAmt:
         time.sleep(0.5)
     except Exception as e:
         print("still looking for more speakers...")
+        tries = tries + 1
+        print("this is try number", tries, " will continue without all speakers at try", maxtries)
+        if tries > maxtries:
+            print("ERROR! NOT ALL SPEAKERS FOUND!!! VOLUME VALUES WILL NOT BE DISPLAYED CORRECTLY!")
+            break
         print(e)
         time.sleep(0.2)
 
@@ -190,8 +213,12 @@ try:
 
         for speakerName, speakerAddress in sonosList.items():
             try:
+                
                 curAnalogPortVoltage = adc.read_voltage(int(speakerName[-1:]))
-                analog[(int(speakerName[-1:])-1)] = (curAnalogPortVoltage / 1.48) * 100
+                curAnalogPortVoltage = interp(curAnalogPortVoltage,[minVoltage,maxVoltage],[minVolume,maxVolume])
+                analog[(int(speakerName[-1:])-1)] = ((curAnalogPortVoltage))
+                # older version
+                # analog[(int(speakerName[-1:])-1)] = ((curAnalogPortVoltage - 5) / 1.48) * 100
             except:
                 print("something went wrong when setting the analog value")
 
