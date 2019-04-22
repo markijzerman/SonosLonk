@@ -127,8 +127,8 @@ x = 1
 tries = 0
 maxtries = 5
 #turning from left to right
-minVoltage = 0
-maxVoltage = 1.48
+minVoltage = 0.2
+maxVoltage = 2.7
 minVolume = 0
 maxVolume = 100
 # if turning right to left, then like this:
